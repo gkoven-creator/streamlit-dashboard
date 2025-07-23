@@ -200,10 +200,11 @@ def summary_table(df):
     summary = pd.concat([summary, pd.DataFrame([{'Bucket': 'Margin', 'Total Amount': margin_val}])], ignore_index=True)
     # Add hours row
     if 'hours' in df.columns:
-        try:
-            hours_sum = pd.to_numeric(df['hours'], errors='coerce').sum()
-        except Exception:
-            hours_sum = 0
+        hours_numeric = pd.to_numeric(df['hours'], errors='coerce')
+        if hours_numeric.isnull().any():
+            hours_sum = 'n/a'
+        else:
+            hours_sum = hours_numeric.sum()
         summary = pd.concat([summary, pd.DataFrame([{'Bucket': 'Hours', 'Total Amount': hours_sum}])], ignore_index=True)
     return summary  # Keep as number for correct sorting except for n/a
 
@@ -331,32 +332,6 @@ def plot_bucket_bar_split(df):
         st.pyplot(fig1)
     else:
         st.write('No cost buckets found.')
-    # Revenue only (all revenue buckets)
-    revenue_buckets = [b for b in bucket_sum.index if 'revenue' in b.lower()]
-    st.subheader('Revenue by Bucket (All Time)')
-    if revenue_buckets:
-        fig2, ax2 = plt.subplots(figsize=(8, 2))
-        bucket_sum[revenue_buckets].sort_values().plot(kind='barh', ax=ax2, color='lightblue')
-        ax2.set_xlabel('Total Amount')
-        ax2.set_title('Revenue by Bucket')
-        ax2.legend([*revenue_buckets], title='Revenue Bucket')
-        ax2.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: human_format(x)))
-        st.pyplot(fig2)
-    else:
-        st.write('No revenue buckets found.')
-    # Profit only
-    profit_bucket = [b for b in bucket_sum.index if b.lower() == 'profit']
-    st.subheader('Profit (All Time)')
-    if profit_bucket:
-        fig3, ax3 = plt.subplots(figsize=(8, 1))
-        bucket_sum[profit_bucket].plot(kind='barh', ax=ax3, color='lightgreen')
-        ax3.set_xlabel('Total Amount')
-        ax3.set_title('Profit')
-        ax3.legend([*profit_bucket], title='Profit')
-        ax3.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: human_format(x)))
-        st.pyplot(fig3)
-    else:
-        st.write('No profit bucket found.')
 
 st.header('Bucket Breakdown (All Time)')
 plot_bucket_bar_split(filtered_df)
