@@ -117,7 +117,7 @@ def format_total_amount(x):
         return f"{x:,.0f}"
     return x  # e.g., 'n/a'
 
-st.title('Goi Revenue, Profit, and Costs Dashboard')
+st.title('Dashboard Breakdown')
 
 st.info('Showing only the last 12 months of data. All periods are grouped by month and year (YYYY-MM).')
 
